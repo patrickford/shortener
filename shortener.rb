@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'active_record'
+require 'digest/sha1'
 require 'pry'
 
 ###########################################################
@@ -28,14 +29,35 @@ end
 # http://guides.rubyonrails.org/association_basics.html
 
 class Link < ActiveRecord::Base
+
+    has_many :clicks
+
+    attr_accessible :url, :code
+
+    validates :url, :presence => true
+    validates :code, :uniqueness 
+    # validates_uniqueness_of :code
+
+    def increment_count
+      update_attributes:  
+    end
+
+    before_save do |record|
+      record.code = Digest::SHA1.hexdigest(record.url)[0,4]
+    end
 end
+
+class Click < ActiveRecord::Base
+  belongs_to :link
+end
+
 
 ###########################################################
 # Routes
 ###########################################################
 
 get '/' do
-    @links = [] # FIXME
+    @links = Link.order('created_at desc').all
     erb :index
 end
 
@@ -44,7 +66,20 @@ get '/new' do
 end
 
 post '/new' do
-    # PUT CODE HERE TO CREATE NEW SHORTENED LINKS
+    # code = params[:url].hash.to_s[0,3]
+    link = Link.find_or_create_by_url :url => params[:url]
+    link.code
 end
+
+get '/:code' do
+  link = Link.find_by_code params[:code]
+  if link.nil?
+    # do something
+  else
+    link.clicks.create
+    redirect 'http://' + link.url
+  end
+end
+
 
 # MORE ROUTES GO HERE
