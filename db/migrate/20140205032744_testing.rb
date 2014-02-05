@@ -1,15 +1,6 @@
-# Put your database migration here!
-#
-# Each one needs to be named correctly:
-# timestamp_[action]_[class]
-#
-# and once a migration is run, a new one must
-# be created with a later timestamp.
+class Testing < ActiveRecord::Migration
 
-class CreateLinks < ActiveRecord::Migration
-    # PUT MIGRATION CODE HERE TO SETUP DATABASE
-
-    def self.up
+    def up
       create_table :links do |t|
         t.string :url
         t.string :code
@@ -23,9 +14,8 @@ class CreateLinks < ActiveRecord::Migration
         t.datetime :updated_at
     end
 
-    def self.down
+    def down
       drop_table :links
       drop_table :clicks
     end
-
 end

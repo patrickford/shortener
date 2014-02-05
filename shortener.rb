@@ -35,11 +35,11 @@ class Link < ActiveRecord::Base
     attr_accessible :url, :code
 
     validates :url, :presence => true
-    validates :code, :uniqueness 
+    validates_uniqueness_of :code 
     # validates_uniqueness_of :code
 
     def increment_count
-      update_attributes:  
+      update_attribute :count, count+1
     end
 
     before_save do |record|
@@ -77,6 +77,7 @@ get '/:code' do
     # do something
   else
     link.clicks.create
+    link.increment_count
     redirect 'http://' + link.url
   end
 end
